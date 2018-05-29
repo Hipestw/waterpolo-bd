@@ -75,8 +75,23 @@ public class Equipo {
 
     // ---------- CRUD BÁSICO
     public boolean create() {
+       boolean exito = true;
+        try (Connection conn = ConexionBd.obtener()) {
+            PreparedStatement stmt = conn.prepareStatement(
+                    "INSERT INTO equipo(id,nombre,ciudad,pais)"
+                    + "values(?,?,?,?)"
+            );
+            stmt.setInt(1, getId());
+            stmt.setString(2, getNombre());
+            stmt.setString(3, getCiudad());
+            stmt.setString(4, getPais());
 
-        return true;
+            stmt.executeUpdate();
+            
+        } catch (SQLException ex) {
+            exito = false;
+        }
+        return exito;
     }
 
     public boolean retrieve() {
@@ -116,12 +131,25 @@ public class Equipo {
         // y si tiene algo con WHERE y varios LIKEs
         // POR HACER
         List<Equipo> resultado = new ArrayList<>();
-        resultado.add(
-                new Equipo(1, "Halcones calvos", "Getafe", "España"));
-        resultado.add(
-                new Equipo(2, "Dumma den som läser den", "Visby", "Suecia"));
-        return resultado;
-
+        boolean todoOk = true;
+        try (Connection conn = ConexionBd.obtener()){
+            resultado = new ArrayList<>();
+            String sql = "SELECT id, nombre, ciudad, pais FROM equipo";
+             try(PreparedStatement stmt = conn.prepareStatement(sql)){
+                 try (ResultSet rs = stmt.executeQuery()){
+                     while (rs.next()){
+                         resultado.add(new Equipo(rs.getInt("id"), rs.getString("nombre"), rs.getString("ciudad"),rs.getString("pais")));
+                     }
+                 }
+             }
+        } catch (SQLException ex) {
+            todoOk = false;
+            ex.printStackTrace();
+        }
+        if(todoOk){
+            return resultado;
+        } else{
+            return null;
+        }
     }
-
 }
