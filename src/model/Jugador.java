@@ -84,19 +84,87 @@ public class Jugador {
     // --------- OPERACIONES BD ----------------------------------------
     // ---------- CRUD BÁSICO
     public boolean create() {
-        return true;
+      boolean exito = true;
+        try (Connection conn = ConexionBd.obtener()) {
+            PreparedStatement stmt = conn.prepareStatement(
+                    "INSERT INTO jugador(nombre, apellidos, edad, idequipo)"
+                    + "values(?,?,?,?)"
+            );
+            stmt.setString(1, getNombre());
+            stmt.setString(2, getApellidos());
+            stmt.setInt(3, getEdad());
+            stmt.setInt(4, getIdEquipo());
+     
+
+            stmt.executeUpdate();
+          
+            
+        } catch (SQLException ex) {
+            exito = false;
+        }
+        return exito;
     }
 
     public boolean retrieve() {
-        return true;
+      boolean exito = true;
+        try (Connection conn = ConexionBd.obtener()) {
+            try (PreparedStatement stmt = conn.prepareStatement(
+                    "SELECT nombre,apellidos,edad,idequipo FROM jugador WHERE id = ?"
+                    + "values(?)"
+            );) {
+
+                try (ResultSet rs = stmt.getGeneratedKeys()) {
+                    while (rs.next()) {
+                        setNombre(rs.getString("nombre"));
+                        setApellidos(rs.getString("apellidos"));
+                        setEdad(rs.getInt("edad"));
+                        setIdEquipo(rs.getInt("ciudad"));
+
+                    }
+
+                }
+            }
+        } catch (SQLException ex) {
+            exito = false;
+        }
+        return exito;
     }
 
     public boolean update() {
-        return true;
+      boolean exito = true;
+        try (Connection conn = ConexionBd.obtener()) {
+            try (PreparedStatement stmt = conn.prepareStatement(
+                    "UPDATE equipo SET nombre = ?, apellidos = ?, idequipo = ? WHERE id = ?"
+                    + "values(?,?,?,?)"
+            );) {
+                try (ResultSet rs = stmt.getGeneratedKeys()) {
+                }
+            }
+        } catch (SQLException ex) {
+            exito = false;
+        }
+        return exito;
     }
-
+    
     public boolean delete() {
-        return true;
+        boolean exito = true;
+        Scanner in = new Scanner(System.in);
+        String idBusqueda;
+        try (Connection conn = ConexionBd.obtener()) {
+            try (PreparedStatement stmt = conn.prepareStatement(
+                    "DELETE FROM jugador WHERE id LIKE ?")) {
+                System.out.println("Dame una id para borrarla: ");
+
+                idBusqueda =in.nextLine();
+                stmt.setString(1, ("%" + idBusqueda + "%"));
+                try (ResultSet rs = stmt.executeQuery()) {
+                }
+            }
+        } catch (SQLException ex) {
+            exito = false;
+
+    }
+        return exito;
     }
 
     // ----------- Otras, de clase, no relacionadas con ÉSTE (this) objeto

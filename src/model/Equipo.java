@@ -75,40 +75,65 @@ public class Equipo {
 
     // ---------- CRUD BÁSICO
     public boolean create() {
-       boolean exito = true;
+boolean exito = true;
         try (Connection conn = ConexionBd.obtener()) {
             PreparedStatement stmt = conn.prepareStatement(
-                    "INSERT INTO equipo(id,nombre,ciudad,pais)"
-                    + "values(?,?,?,?)"
+                    "INSERT INTO equipo(nombre, ciudad, pais)"
+                    + "values(?,?,?)"
             );
-            stmt.setInt(1, getId());
-            stmt.setString(2, getNombre());
-            stmt.setString(3, getCiudad());
-            stmt.setString(4, getPais());
+            stmt.setString(1, getNombre());
+            stmt.setString(2, getCiudad());
+                stmt.setString(2, getPais());
 
             stmt.executeUpdate();
+          
             
         } catch (SQLException ex) {
             exito = false;
         }
         return exito;
     }
+    
 
     public boolean retrieve() {
-        // POR HACER
-        setId(33);
-        setNombre("Equipo ejemplo");
-        setCiudad("Ciudad ejemplo");
-        setPais("Pais ejemplo");
-        return true;
+     boolean exito = true;
+        try (Connection conn = ConexionBd.obtener()) {
+            try (PreparedStatement stmt = conn.prepareStatement(
+                    "SELECT nombre,ciudad,pais FROM jugador WHERE id = ?"
+                    + "values(?)"
+            );) {
+
+                try (ResultSet rs = stmt.getGeneratedKeys()) {
+                    while (rs.next()) {
+                        setNombre(rs.getString("nombre"));
+                        setCiudad(rs.getString("ciudad"));
+                        setPais(rs.getString("pais"));
+                    }
+
+                }
+            }
+        } catch (SQLException ex) {
+            exito = false;
+        }
+        return exito;
     }
+       
+   
 
     public boolean update() {
-        return true;
-    }
-
-    public boolean delete() {
-        return true;
+        boolean exito = true;
+        try (Connection conn = ConexionBd.obtener()) {
+            try (PreparedStatement stmt = conn.prepareStatement(
+                    "UPDATE equipo SET nombre = ?, ciudad = ?, pais = ? WHERE id = ?"
+                    + "values(?,?,?,?)"
+            );) {
+                try (ResultSet rs = stmt.getGeneratedKeys()) {
+                }
+            }
+        } catch (SQLException ex) {
+            exito = false;
+        }
+        return exito;
     }
 
     // ----------- Otras, de instancia, relacionadas con la fk
